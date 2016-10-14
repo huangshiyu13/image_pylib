@@ -48,11 +48,11 @@ class IMGLIB:
     def showBBXs(self):
         self.drawBox()
         self.img.show()
-    def savaBBXs(self,fileName):
+    def saveBBXs(self,fileName):
         f = open(fileName,'w')
         f.write('% bbGt version=3\n')
         for bbx in self.bbxs:
-            f.write('%s %d %d %d %d 0 0 0 0 0 0 0\n'%(bbx.name,bbx.x,bbx.y,bbx.w,bbx.h))
+            f.write('%s %d %d %d %d %f 0 0 0 0 0 0\n'%(bbx.name,bbx.x,bbx.y,bbx.w,bbx.h,bbx.score))
         f.close()
 
     def drawOneBox(self,bbx):
