@@ -126,6 +126,9 @@ class IMGLIB:
     def save_img(self, imgName):
         self.img.save(imgName)
 
+    def pureResize(self,width, height):
+        self.img = self.img.resize((width, height), Image.ANTIALIAS)
+
 if __name__ == '__main__':
     
     imageName = '23.jpg'
@@ -141,5 +144,10 @@ if __name__ == '__main__':
     imglib.resize(imgWidth,imgHeight,0.85)
     imglib.drawBox()
     imglib.save_img(saveImgName)
-    imglib.savaBBXs(saveAnoName)
+    imglib.saveBBXs(saveAnoName)
+
+    imglib.read_img(saveImgName)
+    imglib.pureResize(384,288)
+    imglib.save_img("pureresized.jpg")
+
     
