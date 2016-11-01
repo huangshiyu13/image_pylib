@@ -142,11 +142,9 @@ class IMGLIB:
     def save_img(self, imgName):
         self.img.save(imgName)
 
-<<<<<<< HEAD
-=======
     def pureResize(self,width, height):
         self.img = self.img.resize((width, height), Image.ANTIALIAS)
->>>>>>> 5753e0a6ea7539667f2280775d57d70d0e8485ac
+
 
 if __name__ == '__main__':
     imageName = '/Users/shiyuhuang/Downloads/ATOCAR/ATOCAR_UNITY_2/ATOCAR_UNITY/imgSaveDir/11.jpg'
@@ -157,18 +155,3 @@ if __name__ == '__main__':
     imgHeight = 720
     imglib = IMGLIB()
 
-    imglib.read_img(imageName)
-    imglib.read_ano(anoName)
-    imglib.resize(imgWidth, imgHeight, 0.85)
-    imglib.drawBox()
-    imglib.save_img(saveImgName)
-    imglib.saveBBXs(saveAnoName)
-<<<<<<< HEAD
-=======
-
-    imglib.read_img(saveImgName)
-    imglib.pureResize(384,288)
-    imglib.save_img("pureresized.jpg")
-
-    
->>>>>>> 5753e0a6ea7539667f2280775d57d70d0e8485ac
