@@ -1,39 +1,39 @@
 import inspect
 import os
-from PIL import Image,ImageDraw,ImageFont
+from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 import time
 import math
 import random
 
+
 class BBX:
     def __init__(self):
         pass
-    def str2bbx(self,str):
+
+    def str2bbx(self, str):
         chrs = str.split(' ')
 
         self.name = chrs[0]
-        
+
         self.x = int(chrs[1])
         self.y = int(chrs[2])
         self.w = int(chrs[3])
         self.h = int(chrs[4])
-        self.score=float(0)
+        self.score = float(chrs[5])
 
-    def resize(self, scale,x_d,y_d):
-        self.x = int(self.x*scale)+x_d
-        self.y = int(self.y*scale)+y_d
-        self.w = int(self.w*scale)
-        self.h = int(self.h*scale)
+    def resize(self, scale, x_d, y_d):
+        self.x = int(self.x * scale) + x_d
+        self.y = int(self.y * scale) + y_d
+        self.w = int(self.w * scale)
+        self.h = int(self.h * scale)
 
-    
-        
-        
 
 class IMGLIB:
     def __init__(self):
         pass
-    def setBBXs(self,bboxs,name0):
+
+    def setBBXs(self, bboxs, name0):
         self.bbxs = []
         for bbox in bboxs:
             bbx = BBX()
@@ -48,98 +48,113 @@ class IMGLIB:
     def showBBXs(self):
         self.drawBox()
         self.img.show()
-    def saveBBXs(self,fileName):
-        f = open(fileName,'w')
+
+    def saveBBXs(self, fileName):
+        f = open(fileName, 'w')
         f.write('% bbGt version=3\n')
         for bbx in self.bbxs:
-            f.write('%s %d %d %d %d %f 0 0 0 0 0 0\n'%(bbx.name,bbx.x,bbx.y,bbx.w,bbx.h,bbx.score))
+            f.write('%s %d %d %d %d %f 0 0 0 0 0 0\n' % (bbx.name, bbx.x, bbx.y, bbx.w, bbx.h, bbx.score))
         f.close()
 
-    def drawOneBox(self,bbx):
-        x = bbx.x
-        y = bbx.y
-        w = bbx.w
-        h = bbx.h
-        line1 = ((x,y),(x+w,y),(x+w,y+h),(x,y+h),(x,y))
-        
-        self.draw.line( line1, fill=(255,0,0))  
-        
-        font = ImageFont.truetype("OpenSans-Regular.ttf", 20)
-        self.draw.text((x,y-25),bbx.name+' '+str(bbx.score), fill=(255,0,0),font=font)  
-         
+    def drawOneBox(self, bbx, thr=-1.0):
 
-    def drawBox(self):
-        self.draw = ImageDraw.Draw(self.img)  
+        if bbx.score >= thr:
+            x = bbx.x
+            y = bbx.y
+            w = bbx.w
+            h = bbx.h
+            line1 = ((x, y), (x + w, y), (x + w, y + h), (x, y + h), (x, y))
+
+            self.draw.line(line1, fill=(255, 0, 0))
+
+            font = ImageFont.truetype("OpenSans-Regular.ttf", 20)
+            self.draw.text((x, y - 25), str(bbx.score), fill=(255, 0, 0), font=font)
+
+    def drawBox(self, thr=-1.0):
+        self.draw = ImageDraw.Draw(self.img)
         for bbx in self.bbxs:
-            self.drawOneBox(bbx)
+            self.drawOneBox(bbx, thr)
 
     def read_img(self, fileName):
         self.img = Image.open(fileName)
 
     def read_ano(self, fileName):
-    
-        f = open(fileName,'r')  
+
+        f = open(fileName, 'r')
         lines = f.readlines()
         self.bbxs = []
         for line in lines[1:]:
             nbbx = BBX()
             nbbx.str2bbx(line)
-            self.bbxs.append(nbbx)  
-        
-        #self.img.show()
+            self.bbxs.append(nbbx)
 
-    def resizeBBXs(self,r,x_d,y_d):
+            # self.img.show()
+
+    def resizeBBXs(self, r, x_d, y_d):
         for bbx in self.bbxs:
-            bbx.resize(r,x_d,y_d)
+            bbx.resize(r, x_d, y_d)
 
-    def resize(self, width, height,scale = 1.0):
+    def resize(self, width, height, scale=1.0):
         o_width, o_height = self.img.size
         t_width = int(width * scale)
-        t_height= int(height* scale)
+        t_height = int(height * scale)
 
-        o_ratio = o_width/float(o_height)
-        n_ratio = width/float(height)
-        
+        o_ratio = o_width / float(o_height)
+        n_ratio = width / float(height)
+
         if o_ratio > n_ratio:
-            re_ration = t_width/float(o_width)
-            a_height = int(re_ration*o_height)
+            re_ration = t_width / float(o_width)
+            a_height = int(re_ration * o_height)
             a_width = t_width
-            self.img = self.img.resize((a_width,a_height),Image.ANTIALIAS)
+            self.img = self.img.resize((a_width, a_height), Image.ANTIALIAS)
         else:
-            re_ration = t_height/float(o_height)
-            a_width = int(re_ration*o_width)
+            re_ration = t_height / float(o_height)
+            a_width = int(re_ration * o_width)
             a_height = t_height
-            self.img = self.img.resize( (a_width,a_height),Image.ANTIALIAS)
+            self.img = self.img.resize((a_width, a_height), Image.ANTIALIAS)
 
-        self.x_d = random.randint(0, abs(a_width-width) )
-        self.y_d = random.randint(0, abs(a_height-height) )
+        self.x_d = random.randint(0, abs(a_width - width))
+        self.y_d = random.randint(0, abs(a_height - height))
         imgNew = Image.new("RGB", (width, height), "black")
 
-        box = (0,0,a_width,a_height) 
-        region = self.img.crop(box) 
-        
-        imgNew.paste(region, (self.x_d,self.y_d) )
+        box = (0, 0, a_width, a_height)
+        region = self.img.crop(box)
+
+        imgNew.paste(region, (self.x_d, self.y_d))
         self.img = imgNew
-        self.resizeBBXs(re_ration,self.x_d,self.y_d)
+        self.resizeBBXs(re_ration, self.x_d, self.y_d)
         # self.drawBox()
+
+    def cleanAno(self,w0, h0):
+        newBBXS = []
+        for bbox in self.bbxs:
+            if bbox.x >= 0 and bbox.x <= w0 and bbox.y >= 0 and bbox.y <= h0 and bbox.w >= 20 and bbox.w <= w0 and bbox.h >= 30 and bbox.h <= h0:
+                bbx = BBX()
+                bbx.name = bbox.name
+                bbx.x = bbox.x
+                bbx.y = bbox.y
+                bbx.w = bbox.w
+                bbx.h = bbox.h
+                bbx.score = bbox.score
+                newBBXS.append(bbx)
+        self.bbxs = newBBXS
 
     def save_img(self, imgName):
         self.img.save(imgName)
 
+
 if __name__ == '__main__':
-    
-    imageName = '23.jpg'
-    anoName = '23.txt'
-    saveImgName= '23_resized.jpg'
-    saveAnoName ='23_resized.txt'
+    imageName = '/Users/shiyuhuang/Downloads/ATOCAR/ATOCAR_UNITY_2/ATOCAR_UNITY/imgSaveDir/11.jpg'
+    anoName = '/Users/shiyuhuang/Downloads/ATOCAR/ATOCAR_UNITY_2/ATOCAR_UNITY/anoSaveDir/11.txt'
+    saveImgName = '1_resized.jpg'
+    saveAnoName = '1_resized.txt'
     imgWidth = 960
-    imgHeight= 720
+    imgHeight = 720
     imglib = IMGLIB()
 
     imglib.read_img(imageName)
     imglib.read_ano(anoName)
-    imglib.resize(imgWidth,imgHeight,0.85)
+    imglib.resize(imgWidth, imgHeight, 0.85)
     imglib.drawBox()
     imglib.save_img(saveImgName)
-    imglib.savaBBXs(saveAnoName)
-    
+    imglib.saveBBXs(saveAnoName)
