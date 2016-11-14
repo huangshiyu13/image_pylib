@@ -56,7 +56,7 @@ class IMGLIB:
             f.write('%s %d %d %d %d %f 0 0 0 0 0 0\n' % (bbx.name, bbx.x, bbx.y, bbx.w, bbx.h, bbx.score))
         f.close()
 
-    def drawOneBox(self, bbx, thr=-1.0):
+    def drawOneBox(self, bbx, thr=-1.0,showName = False):
 
         if bbx.score >= thr:
             x = bbx.x
@@ -66,14 +66,14 @@ class IMGLIB:
             line1 = ((x, y), (x + w, y), (x + w, y + h), (x, y + h), (x, y))
 
             self.draw.line(line1, fill=(255, 0, 0))
+            if showName:
+                font = ImageFont.truetype("OpenSans-Regular.ttf", 20)
+                self.draw.text((x, y - 25), str(bbx.score), fill=(255, 0, 0), font=font)
 
-            font = ImageFont.truetype("OpenSans-Regular.ttf", 20)
-            self.draw.text((x, y - 25), str(bbx.score), fill=(255, 0, 0), font=font)
-
-    def drawBox(self, thr=-1.0):
+    def drawBox(self, thr=-1.0, showName = False):
         self.draw = ImageDraw.Draw(self.img)
         for bbx in self.bbxs:
-            self.drawOneBox(bbx, thr)
+            self.drawOneBox(bbx, thr,showName)
 
     def read_img(self, fileName):
         self.img = Image.open(fileName)
