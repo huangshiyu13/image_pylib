@@ -7,6 +7,9 @@ import math
 import random
 
 
+def safeInt(ss):
+    return int(float(ss))
+
 class BBX:
     def __init__(self):
         pass
@@ -16,17 +19,17 @@ class BBX:
 
         self.name = chrs[0]
 
-        self.x = int(chrs[1])
-        self.y = int(chrs[2])
-        self.w = int(chrs[3])
-        self.h = int(chrs[4])
+        self.x = safeInt(chrs[1])
+        self.y = safeInt(chrs[2])
+        self.w = safeInt(chrs[3])
+        self.h = safeInt(chrs[4])
         self.score = float(chrs[5])
 
     def resize(self, scale, x_d, y_d):
-        self.x = int(self.x * scale) + x_d
-        self.y = int(self.y * scale) + y_d
-        self.w = int(self.w * scale)
-        self.h = int(self.h * scale)
+        self.x = safeInt(self.x * scale) + x_d
+        self.y = safeInt(self.y * scale) + y_d
+        self.w = safeInt(self.w * scale)
+        self.h = safeInt(self.h * scale)
 
 
 class IMGLIB:
@@ -38,10 +41,10 @@ class IMGLIB:
         for bbox in bboxs:
             bbx = BBX()
             bbx.name = name0
-            bbx.x = int(bbox[0])
-            bbx.y = int(bbox[1])
-            bbx.w = int(bbox[2])
-            bbx.h = int(bbox[3])
+            bbx.x = safeInt(bbox[0])
+            bbx.y = safeInt(bbox[1])
+            bbx.w = safeInt(bbox[2])
+            bbx.h = safeInt(bbox[3])
             bbx.score = bbox[4]
             self.bbxs.append(bbx)
 
@@ -96,20 +99,20 @@ class IMGLIB:
 
     def resize(self, width, height, scale=1.0):
         o_width, o_height = self.img.size
-        t_width = int(width * scale)
-        t_height = int(height * scale)
+        t_width = safeInt(width * scale)
+        t_height = safeInt(height * scale)
 
         o_ratio = o_width / float(o_height)
         n_ratio = width / float(height)
 
         if o_ratio > n_ratio:
             re_ration = t_width / float(o_width)
-            a_height = int(re_ration * o_height)
+            a_height = safeInt(re_ration * o_height)
             a_width = t_width
             self.img = self.img.resize((a_width, a_height), Image.ANTIALIAS)
         else:
             re_ration = t_height / float(o_height)
-            a_width = int(re_ration * o_width)
+            a_width = safeInt(re_ration * o_width)
             a_height = t_height
             self.img = self.img.resize((a_width, a_height), Image.ANTIALIAS)
 
