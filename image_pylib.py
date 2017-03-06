@@ -149,11 +149,5 @@ class IMGLIB:
 
 
 if __name__ == '__main__':
-    imageName = '/Users/shiyuhuang/Downloads/ATOCAR/ATOCAR_UNITY_2/ATOCAR_UNITY/imgSaveDir/11.jpg'
-    anoName = '/Users/shiyuhuang/Downloads/ATOCAR/ATOCAR_UNITY_2/ATOCAR_UNITY/anoSaveDir/11.txt'
-    saveImgName = '1_resized.jpg'
-    saveAnoName = '1_resized.txt'
-    imgWidth = 960
-    imgHeight = 720
-    imglib = IMGLIB()
+    pass
 
