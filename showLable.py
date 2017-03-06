@@ -3,15 +3,13 @@ import os
 import shutil
 if __name__ == '__main__':
     imglib = IMGLIB()
-    # imageDir = '/Users/shiyuhuang/Downloads/ATOCAR/ATOCAR_CNN/results/d_net/result2ReverseImg/800/'
-    imageDir = '/Users/shiyuhuang/Downloads/ATOCAR/DATA/dangerousFinal/test/'
-    # anoDir   = '../../DATA/dangerousFinal/allNowAno/'
-    # anoDir   = '../../DATA/Caltech/Caltech/train/annotations/'
-    # anoDir   = '../../DATA/syntheticData/new/CroppedAno/'
-    anoDir   = '/Users/shiyuhuang/Downloads/ATOCAR/DATA/dangerousFinal/rpn_test_res/'
+   
+    imageDir = 'image/'
+   
+    anoDir   = 'ano/'
 
-    # saveImgDir = '/Users/shiyuhuang/Downloads/ATOCAR/ATOCAR_CNN/results/d_net/result2ReverseImg/800Show/'
-    saveImgDir = '/Users/shiyuhuang/Downloads/ATOCAR/ATOCAR_CNN/results/rpn/rpn_test_resShow/'
+    
+    saveImgDir = 'saveDir/'
     thr = 0.99
     imageNames = []
     
