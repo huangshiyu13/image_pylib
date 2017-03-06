@@ -6,7 +6,6 @@ import time
 import math
 import random
 
-
 def safeInt(ss):
     return int(float(ss))
 
