@@ -4,7 +4,8 @@ This repository intents to build a general image processing python library.
 ##Usage
 - have a look at showLable.py
 
-##API
+
+## API
 - read_img: read in a image
 - read_ano:read in the annotation
 - drawBox(thr=-1.0, showName = False): draw the boxes in annotation onto the image. `thr` is the threshold for the bounding box's score, `showName` means showing the class names
