@@ -145,6 +145,7 @@ class IMGLIB:
         self.img.save(imgName)
 
     def pureResize(self,width, height):
+        
         self.img = self.img.resize((width, height), Image.ANTIALIAS)
 
 
