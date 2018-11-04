@@ -1,7 +1,8 @@
 image_pylib
 ==========
-This repository intents to build a general image processing python library.
-##Usage
+This repository intents to build a general image processing python library. This is for personal usage.
+
+## Usage
 - have a look at showLable.py
 
 
