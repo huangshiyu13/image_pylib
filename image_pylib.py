@@ -6,6 +6,8 @@ import time
 import math
 import random
 
+
+
 def safeInt(ss):
     return int(float(ss))
 
@@ -24,6 +26,17 @@ class BBX:
         self.h = safeInt(chrs[4])
         self.score = float(chrs[5])
 
+    def str2bbx_true(self, str):
+        chrs = str.split(' ')
+
+        self.name = chrs[0]
+
+        self.x = safeInt(chrs[1])
+        self.y = safeInt(chrs[2])
+        self.w = safeInt(chrs[3])
+        self.h = safeInt(chrs[4])
+        self.score = 1
+
     def resize(self, scale, x_d, y_d):
         self.x = safeInt(self.x * scale) + x_d
         self.y = safeInt(self.y * scale) + y_d
@@ -31,15 +44,46 @@ class BBX:
         self.h = safeInt(self.h * scale)
 
 
-class IMGLIB:
-    def __init__(self):
-        pass
 
-    def setBBXs(self, bboxs, name0):
+class COLOR_CONF:
+    def __init__(self,names = None,default_color = (255,0,0), default_font_size = 12, line_width = 1):
+        self.colors = {}
+        if names is not None:
+            self.generate_colors(names)
+        self.default_color = default_color
+        self.default_font_size = default_font_size
+        self.line_width = line_width
+    def set_color(self,name,color):
+        self.colors[name] = color
+
+    def generate_colors(self,names):
+        for i in range(len(names)):
+            self.colors[names[i]] = (random.randint(0,255),random.randint(0,255),random.randint(0,255))
+
+    def get_color(self,name):
+        if name in self.colors:
+            return self.colors[name]
+        else:
+            return self.default_color
+
+class IMGLIB:
+    def __init__(self,color_conf = None):
+        if color_conf is None:
+            default_color = (255,0,0)
+            self.color_conf = COLOR_CONF(default_color=default_color)
+        else:
+            self.color_conf = color_conf
+
+    def setBBXs(self, bboxs=None, names=None):
         self.bbxs = []
-        for bbox in bboxs:
+        for i, bbox in enumerate(bboxs):
+
             bbx = BBX()
-            bbx.name = name0
+
+            if names == None:
+                bbx.name = None
+            else:
+                bbx.name = names[i]
             bbx.x = safeInt(bbox[0])
             bbx.y = safeInt(bbox[1])
             bbx.w = safeInt(bbox[2])
@@ -53,44 +97,63 @@ class IMGLIB:
 
     def saveBBXs(self, fileName):
         f = open(fileName, 'w')
-        f.write('% bbGt version=3\n')
         for bbx in self.bbxs:
-            f.write('%s %d %d %d %d %f 0 0 0 0 0 0\n' % (bbx.name, bbx.x, bbx.y, bbx.w, bbx.h, bbx.score))
+            f.write('%s %d %d %d %d %f\n' % (bbx.name, bbx.x, bbx.y, bbx.w, bbx.h, bbx.score))
         f.close()
 
-    def drawOneBox(self, bbx, thr=-1.0,showName = False):
-
+    def drawOneBox(self, bbx, thr=-1.0, showName=False):
         if bbx.score >= thr:
             x = bbx.x
             y = bbx.y
             w = bbx.w
             h = bbx.h
+            # print x,y,w,h
             line1 = ((x, y), (x + w, y), (x + w, y + h), (x, y + h), (x, y))
 
-            self.draw.line(line1, fill=(255, 0, 0))
-            if showName:
-                font = ImageFont.truetype("OpenSans-Regular.ttf", 20)
-                self.draw.text((x, y - 25), str(bbx.score), fill=(255, 0, 0), font=font)
+            fill_color = self.color_conf.get_color(bbx.name)
+            # print line1
+            # print fill_color
+            # print self.color_conf.line_width
+            self.draw.line(line1, fill=fill_color,width=self.color_conf.line_width)
 
-    def drawBox(self, thr=-1.0, showName = False):
+            if bbx.name == None or showName == False:
+                font = ImageFont.truetype("OpenSans-Regular.ttf", self.color_conf.default_font_size)
+
+                self.draw.text((x+self.color_conf.line_width, y), str(bbx.score), fill=fill_color, font=font)
+            else:
+                font = ImageFont.truetype("OpenSans-Regular.ttf", self.color_conf.default_font_size)
+                self.draw.text((x+self.color_conf.line_width, y), bbx.name + ' ' + str(bbx.score), fill=fill_color, font=font)
+
+    def drawBox(self, thr=-1.0, showName=False):
         self.draw = ImageDraw.Draw(self.img)
         for bbx in self.bbxs:
-            self.drawOneBox(bbx, thr,showName)
+            self.drawOneBox(bbx, thr, showName)
 
     def read_img(self, fileName):
-        self.img = Image.open(fileName)
+        self.img = Image.open(fileName).convert('RGB')
+
+    def read_gray_img(self, fileName):
+        self.img = Image.open(fileName).convert('L')
 
     def read_ano(self, fileName):
 
         f = open(fileName, 'r')
         lines = f.readlines()
         self.bbxs = []
-        for line in lines[1:]:
+        for line in lines[:]:
             nbbx = BBX()
             nbbx.str2bbx(line)
             self.bbxs.append(nbbx)
 
-            # self.img.show()
+    def read_ano_true(self, fileName):
+
+        f = open(fileName, 'r')
+        lines = f.readlines()
+        self.bbxs = []
+        for line in lines[:]:
+            nbbx = BBX()
+            nbbx.str2bbx_true(line)
+            self.bbxs.append(nbbx)
 
     def resizeBBXs(self, r, x_d, y_d):
         for bbx in self.bbxs:
@@ -127,7 +190,7 @@ class IMGLIB:
         self.resizeBBXs(re_ration, self.x_d, self.y_d)
         # self.drawBox()
 
-    def cleanAno(self,w0, h0):
+    def cleanAno(self, w0, h0):
         newBBXS = []
         for bbox in self.bbxs:
             if bbox.x >= 0 and bbox.x <= w0 and bbox.y >= 0 and bbox.y <= h0 and bbox.w >= 20 and bbox.w <= w0 and bbox.h >= 30 and bbox.h <= h0:
@@ -144,9 +207,19 @@ class IMGLIB:
     def save_img(self, imgName):
         self.img.save(imgName)
 
-    def pureResize(self,width, height):
-        
+    def pureResize(self, width, height):
+        re_ration = float(width)/self.img.size[0]
         self.img = self.img.resize((width, height), Image.ANTIALIAS)
+        self.resizeBBXs(re_ration, 0, 0)
+
+    def flip(self, width):
+        self.img = self.img.transpose(Image.FLIP_LEFT_RIGHT)
+        newBBXS = []
+        for bbox in self.bbxs:
+            bbox.x = width - bbox.x - bbox.w
+            newBBXS.append(bbox)
+        self.bbxs = newBBXS
+
 
 
 if __name__ == '__main__':
