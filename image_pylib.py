@@ -74,6 +74,9 @@ class IMGLIB:
         else:
             self.color_conf = color_conf
 
+        FontData = os.path.join(os.path.dirname(os.path.realpath(__file__)), "OpenSans-Regular.ttf")
+        self.font = ImageFont.truetype(FontData, self.color_conf.default_font_size)
+
     def setBBXs(self, bboxs=None, names=None):
         self.bbxs = []
         for i, bbox in enumerate(bboxs):
@@ -117,17 +120,31 @@ class IMGLIB:
             self.draw.line(line1, fill=fill_color,width=self.color_conf.line_width)
 
             if bbx.name == None or showName == False:
-                font = ImageFont.truetype("OpenSans-Regular.ttf", self.color_conf.default_font_size)
-
-                self.draw.text((x+self.color_conf.line_width, y), str(bbx.score), fill=fill_color, font=font)
+                self.draw.text((x+self.color_conf.line_width, y), str(bbx.score), fill=fill_color, font=self.font)
             else:
-                font = ImageFont.truetype("OpenSans-Regular.ttf", self.color_conf.default_font_size)
-                self.draw.text((x+self.color_conf.line_width, y), bbx.name + ' ' + str(bbx.score), fill=fill_color, font=font)
+                self.draw.text((x+self.color_conf.line_width, y), bbx.name + ' ' + str(bbx.score), fill=fill_color, font=self.font)
 
-    def drawBox(self, thr=-1.0, showName=False):
+    def drawOneBoxTrue(self, bbx, showName=False):
+        x = bbx.x
+        y = bbx.y
+        w = bbx.w
+        h = bbx.h
+        line1 = ((x, y), (x + w, y), (x + w, y + h), (x, y + h), (x, y))
+        fill_color = self.color_conf.get_color(bbx.name)
+        self.draw.line(line1, fill=fill_color,width=self.color_conf.line_width)
+        if bbx.name == None or showName == False:
+            self.draw.text((x+self.color_conf.line_width, y), 'True', fill=fill_color, font=self.font)
+        else:
+            self.draw.text((x+self.color_conf.line_width, y), bbx.name + '_True', fill=fill_color, font=self.font)
+
+    def drawBox(self, thr=-1.0, showName=True, show_true = True):
         self.draw = ImageDraw.Draw(self.img)
         for bbx in self.bbxs:
             self.drawOneBox(bbx, thr, showName)
+
+        if show_true and hasattr(self,'bbxs_true'):
+            for bbx in self.bbxs_true:
+                self.drawOneBoxTrue(bbx, showName)
 
     def read_img(self, fileName):
         self.img = Image.open(fileName).convert('RGB')
@@ -149,11 +166,11 @@ class IMGLIB:
 
         f = open(fileName, 'r')
         lines = f.readlines()
-        self.bbxs = []
+        self.bbxs_true = []
         for line in lines[:]:
             nbbx = BBX()
             nbbx.str2bbx_true(line)
-            self.bbxs.append(nbbx)
+            self.bbxs_true.append(nbbx)
 
     def resizeBBXs(self, r, x_d, y_d):
         for bbx in self.bbxs:
@@ -187,7 +204,8 @@ class IMGLIB:
 
         imgNew.paste(region, (self.x_d, self.y_d))
         self.img = imgNew
-        self.resizeBBXs(re_ration, self.x_d, self.y_d)
+        if hasattr(self,'bbxs'):
+            self.resizeBBXs(re_ration, self.x_d, self.y_d)
         # self.drawBox()
 
     def cleanAno(self, w0, h0):
@@ -210,7 +228,8 @@ class IMGLIB:
     def pureResize(self, width, height):
         re_ration = float(width)/self.img.size[0]
         self.img = self.img.resize((width, height), Image.ANTIALIAS)
-        self.resizeBBXs(re_ration, 0, 0)
+        if hasattr(self,'bbxs'):
+            self.resizeBBXs(re_ration, 0, 0)
 
     def flip(self, width):
         self.img = self.img.transpose(Image.FLIP_LEFT_RIGHT)
